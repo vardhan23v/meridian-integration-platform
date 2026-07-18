@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ──
+enum JobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  PARTIAL
+}
+
+enum SyncStatus {
+  SUCCESS
+  ERROR
+  RETRYING
+}
+
+enum Role {
+  SUPER_ADMIN
+  SYSTEM_ADMIN
+  SAP_ADMIN
+  FINANCE_MANAGER
+  FINANCE_ANALYST
+  OPS_ENGINEER
+  PLATFORM_ENGINEER
+  AUDITOR
+  COMPLIANCE_OFFICER
+  READ_ONLY
+}
+
+// ── Core Domain ──
+model User {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String   @unique @db.VarChar(100)
+  passwordHash String   @db.VarChar(255)
+  firstName    String   @db.VarChar(50)
+  lastName     String   @db.VarChar(50)
+  role         Role     @default(READ_ONLY)
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Company {
+  id              String           @id @db.VarChar(10) // e.g., BUKRS '1000'
+  name            String           @db.VarChar(100)
+  country         String           @db.VarChar(2)
+  plants          Plant[]
+  integrationJobs IntegrationJob[]
+  generalLedgers  GeneralLedger[]
+
+  @@map("companies")
+}
+
+model Plant {
+  id        String  @id @db.VarChar(10) // e.g., WERKS '1001'
+  companyId String  @db.VarChar(10)
+  name      String  @db.VarChar(100)
+  state     String  @db.VarChar(50)
+  
+  company   Company @relation(fields: [companyId], references: [id])
+
+  @@map("plants")
+}
+
+// ── Integration & Audit ──
+model IntegrationJob {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId      String        @db.VarChar(10)
+  jobType        String        @db.VarChar(20) // BATCH, DELTA
+  status         JobStatus     @default(PENDING)
+  totalRecords   Int           @default(0)
+  startedAt      DateTime      @default(now())
+  completedAt    DateTime?
+  
+  company        Company       @relation(fields: [companyId], references: [id])
+  auditEntries   AuditEntry[]
+  dlqEntries     DeadLetterQueue[]
+
+  @@index([startedAt])
+  @@map("integration_jobs")
+}
+
+model AuditEntry {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  jobId          String        @db.Uuid
+  sapDocNo       String        @db.VarChar(50)   // BELNR
+  fiscalYear     String        @db.VarChar(4)    // GJAHR
+  finsightId     String?       @db.VarChar(100)
+  status         SyncStatus
+  createdAt      DateTime      @default(now())
+
+  job            IntegrationJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, sapDocNo, fiscalYear])
+  @@index([status, createdAt])
+  @@map("audit_entries")
+}
+
+model DeadLetterQueue {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  jobId          String        @db.Uuid
+  payload        Json          @db.JsonB
+  errorCode      String        @db.VarChar(50)
+  errorReason    String        @db.Text
+  retryCount     Int           @default(0)
+  resolved       Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+
+  job            IntegrationJob @relation(fields: [jobId], references: [id])
+
+  @@index([resolved, createdAt])
+  @@map("dead_letter_queue")
+}
+
+// ── Financial Data (Cached for Reconciliation) ──
+model GeneralLedger {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId      String        @db.VarChar(10)
+  sapDocNo       String        @db.VarChar(50)
+  account        String        @db.VarChar(20)
+  amount         Decimal       @db.Decimal(23, 4)
+  currency       String        @db.VarChar(5)
+  cgstAmount     Decimal?      @db.Decimal(23, 4)
+  sgstAmount     Decimal?      @db.Decimal(23, 4)
+  igstAmount     Decimal?      @db.Decimal(23, 4)
+  postingDate    DateTime
+  createdAt      DateTime      @default(now())
+
+  company        Company       @relation(fields: [companyId], references: [id])
+
+  @@index([postingDate])
+  @@map("general_ledgers")
+}

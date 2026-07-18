@@ -1,0 +1,44 @@
+FROM node:22-alpine AS base
+RUN corepack enable && corepack prepare pnpm@9 --activate
+WORKDIR /app
+
+FROM base AS builder
+# Copy workspace config and lockfile
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY packages/shared/package.json ./packages/shared/
+COPY apps/api/package.json ./apps/api/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source
+COPY packages/shared ./packages/shared
+COPY apps/api ./apps/api
+
+# Generate Prisma client and build
+RUN pnpm --filter @meridian/api run db:generate
+RUN pnpm --filter @meridian/shared run build
+RUN pnpm --filter @meridian/api run build
+
+# Prune devDependencies for production
+RUN pnpm --filter @meridian/api --prod deploy /app/pruned
+
+# Copy generated Prisma client into the pruned deployment (pnpm deploy reinstalls deps without generated engine)
+RUN generated=$(find /app/node_modules/.pnpm -path '*/@prisma+client@*/node_modules/.prisma/client' -type d | head -1) && \
+    pruned=$(find /app/pruned/node_modules/.pnpm -path '*/@prisma+client@*/node_modules/.prisma/client' -type d | head -1) && \
+    cp -r "$generated"/* "$pruned"/ && \
+    ls -la "$pruned"/libquery_engine* || true
+
+FROM base AS runner
+ENV NODE_ENV=production
+
+COPY --from=builder /app/pruned ./
+
+# Copy built artifacts and Prisma schema
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
+
+EXPOSE 3000
+
+CMD ["node", "apps/api/dist/server.js"]

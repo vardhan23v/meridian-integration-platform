@@ -1,0 +1,409 @@
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Liquid-Glass Token System
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Base palette ────────────────────────────────────── */
+  --background: #f0f2f5;
+  --foreground: #1a1a2e;
+  --accent: #6366f1;
+  --text-muted: #6b7280;
+  --text-soft: #4b5563;
+
+  /* ── Glass opacity tokens ────────────────────────────── */
+  --glass-opacity-light: 0.45;
+  --glass-opacity-medium: 0.55;
+  --glass-opacity-strong: 0.72;
+  --glass-opacity-subtle: 0.28;
+
+  /* ── Glass blur radius tokens ────────────────────────── */
+  --glass-blur-sm: 8px;
+  --glass-blur-md: 16px;
+  --glass-blur-lg: 24px;
+  --glass-blur-xl: 40px;
+
+  /* ── Glass border luminance ──────────────────────────── */
+  --glass-border-luminance: rgba(255, 255, 255, 0.55);
+  --glass-border-luminance-strong: rgba(255, 255, 255, 0.72);
+  --glass-border-luminance-subtle: rgba(255, 255, 255, 0.28);
+
+  /* ── Glow color tokens ───────────────────────────────── */
+  --glow-accent: rgba(99, 102, 241, 0.18);
+  --glow-accent-strong: rgba(99, 102, 241, 0.32);
+  --glow-success: rgba(34, 197, 94, 0.18);
+  --glow-warning: rgba(251, 191, 36, 0.18);
+  --glow-danger: rgba(239, 68, 68, 0.18);
+  --glow-white: rgba(255, 255, 255, 0.12);
+
+  /* ── Glass surface backgrounds (composed from tokens) ── */
+  --glass-bg: rgba(255, 255, 255, var(--glass-opacity-medium));
+  --glass-bg-strong: rgba(255, 255, 255, var(--glass-opacity-strong));
+  --glass-bg-subtle: rgba(255, 255, 255, var(--glass-opacity-subtle));
+  --surface-1: rgba(255, 255, 255, 0.4);
+  --surface-2: rgba(255, 255, 255, 0.6);
+
+  /* ── Glass shadow tokens ─────────────────────────────── */
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --glass-shadow-strong: 0 12px 40px rgba(0, 0, 0, 0.09), 0 2px 6px rgba(0, 0, 0, 0.05);
+  --glass-shadow-elevated: 0 20px 60px rgba(0, 0, 0, 0.11), 0 4px 12px rgba(0, 0, 0, 0.06);
+
+  /* ── Glass radius token ──────────────────────────────── */
+  --glass-radius: 1rem;
+
+  /* ── Legacy aliases (kept for existing consumers) ────── */
+  --glass-border: var(--glass-border-luminance);
+  --glass-hover-shadow: var(--glass-shadow-strong);
+  --glass-blur: var(--glass-blur-md);
+  --accent-glow: var(--glow-accent);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Keyframes
+   ═══════════════════════════════════════════════════════════ */
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--glow-accent); }
+  50%      { box-shadow: 0 0 0 8px transparent; }
+}
+
+@keyframes glow-pulse-strong {
+  0%, 100% { box-shadow: 0 0 0 0 var(--glow-accent-strong); }
+  50%      { box-shadow: 0 0 0 14px transparent; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+@keyframes border-shimmer {
+  0%   { border-color: var(--glass-border-luminance); }
+  50%  { border-color: var(--glass-border-luminance-strong); }
+  100% { border-color: var(--glass-border-luminance); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Liquid-Glass Utility Classes
+   ═══════════════════════════════════════════════════════════ */
+
+@layer utilities {
+  /* ── .glass — standard glass panel ──────────────────── */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur-md));
+    -webkit-backdrop-filter: blur(var(--glass-blur-md));
+    border: 1px solid var(--glass-border-luminance);
+    border-radius: var(--glass-radius);
+    box-shadow: var(--glass-shadow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass:hover {
+    box-shadow: var(--glass-shadow-strong);
+    border-color: var(--glass-border-luminance-strong);
+  }
+
+  /* ── .glass-strong — heavier, more opaque glass ─────── */
+  .glass-strong {
+    background: var(--glass-bg-strong);
+    backdrop-filter: blur(var(--glass-blur-lg));
+    -webkit-backdrop-filter: blur(var(--glass-blur-lg));
+    border: 1px solid var(--glass-border-luminance-strong);
+    border-radius: var(--glass-radius);
+    box-shadow: var(--glass-shadow-strong);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-strong:hover {
+    box-shadow: var(--glass-shadow-elevated);
+    border-color: rgba(255, 255, 255, 0.85);
+  }
+
+  /* ── .glass-subtle — barely-there glass ─────────────── */
+  .glass-subtle {
+    background: var(--glass-bg-subtle);
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    border: 1px solid var(--glass-border-luminance-subtle);
+    border-radius: var(--glass-radius);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-subtle:hover {
+    background: var(--glass-bg);
+    border-color: var(--glass-border-luminance);
+  }
+
+  /* ── .glass-border — standalone glass border ring ───── */
+  .glass-border {
+    border: 1px solid var(--glass-border-luminance);
+    border-radius: var(--glass-radius);
+    transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-border:hover {
+    border-color: var(--glass-border-luminance-strong);
+  }
+
+  /* ── .glow — accent glow ring ───────────────────────── */
+  .glow {
+    box-shadow: 0 0 0 0 var(--glow-accent);
+    transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glow:focus-visible,
+  .glow:hover {
+    box-shadow: 0 0 0 4px var(--glow-accent);
+  }
+
+  /* ── .glow-strong — prominent glow ──────────────────── */
+  .glow-strong {
+    box-shadow: 0 0 0 0 var(--glow-accent-strong);
+    transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glow-strong:focus-visible,
+  .glow-strong:hover {
+    box-shadow: 0 0 0 6px var(--glow-accent-strong);
+  }
+
+  /* ── .glow-success / .glow-warning / .glow-danger ───── */
+  .glow-success {
+    box-shadow: 0 0 0 0 var(--glow-success);
+    transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glow-success:focus-visible,
+  .glow-success:hover {
+    box-shadow: 0 0 0 4px var(--glow-success);
+  }
+
+  .glow-warning {
+    box-shadow: 0 0 0 0 var(--glow-warning);
+    transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glow-warning:focus-visible,
+  .glow-warning:hover {
+    box-shadow: 0 0 0 4px var(--glow-warning);
+  }
+
+  .glow-danger {
+    box-shadow: 0 0 0 0 var(--glow-danger);
+    transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glow-danger:focus-visible,
+  .glow-danger:hover {
+    box-shadow: 0 0 0 4px var(--glow-danger);
+  }
+
+  /* ── Animation utility classes ──────────────────────── */
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.15) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 2.5s ease-in-out infinite;
+  }
+
+  .animate-glow-pulse-strong {
+    animation: glow-pulse-strong 2.5s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-border-shimmer {
+    animation: border-shimmer 3s ease-in-out infinite;
+  }
+
+  /* ── Staggered animation delays ─────────────────────── */
+  .delay-100 { animation-delay: 0.1s; }
+  .delay-200 { animation-delay: 0.2s; }
+  .delay-300 { animation-delay: 0.3s; }
+  .delay-400 { animation-delay: 0.4s; }
+  .delay-500 { animation-delay: 0.5s; }
+}
+
+/* ── Legacy surface classes (outside @layer for direct use) ─ */
+.glass-surface {
+  background: var(--surface-1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--glass-radius);
+}
+
+.glass-elevated {
+  background: var(--surface-2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-shadow-strong);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Dark Mode
+   ═══════════════════════════════════════════════════════════ */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a14;
+    --foreground: #e4e4ec;
+
+    /* ── Glass opacity (unchanged — works in both modes) ─ */
+    --glass-opacity-light: 0.35;
+    --glass-opacity-medium: 0.48;
+    --glass-opacity-strong: 0.65;
+    --glass-opacity-subtle: 0.22;
+
+    /* ── Glass border luminance ────────────────────────── */
+    --glass-border-luminance: rgba(255, 255, 255, 0.08);
+    --glass-border-luminance-strong: rgba(255, 255, 255, 0.14);
+    --glass-border-luminance-subtle: rgba(255, 255, 255, 0.04);
+
+    /* ── Glow colors ───────────────────────────────────── */
+    --glow-accent: rgba(99, 102, 241, 0.22);
+    --glow-accent-strong: rgba(99, 102, 241, 0.38);
+    --glow-success: rgba(34, 197, 94, 0.22);
+    --glow-warning: rgba(251, 191, 36, 0.22);
+    --glow-danger: rgba(239, 68, 68, 0.22);
+    --glow-white: rgba(255, 255, 255, 0.08);
+
+    /* ── Glass surface backgrounds ─────────────────────── */
+    --glass-bg: rgba(20, 20, 40, var(--glass-opacity-medium));
+    --glass-bg-strong: rgba(20, 20, 40, var(--glass-opacity-strong));
+    --glass-bg-subtle: rgba(20, 20, 40, var(--glass-opacity-subtle));
+    --surface-1: rgba(20, 20, 40, 0.4);
+    --surface-2: rgba(20, 20, 40, 0.6);
+
+    /* ── Glass shadows ─────────────────────────────────── */
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+    --glass-shadow-strong: 0 12px 40px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.25);
+    --glass-shadow-elevated: 0 20px 60px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    --text-muted: #9ca3af;
+    --text-soft: #d1d5db;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Base
+   ═══════════════════════════════════════════════════════════ */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans, Arial, Helvetica, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Smooth transitions on interactive elements ────────── */
+@layer base {
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+
+  a,
+  button,
+  [tabindex]:not([tabindex="-1"]) {
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+
+  a:active,
+  button:active {
+    transform: scale(0.97);
+  }
+}
+
+/* ── Scrollbar styling ─────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.4);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.6);
+}
