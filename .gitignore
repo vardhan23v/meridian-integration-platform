@@ -29,8 +29,11 @@ logs/
 
 # Testing
 coverage/
+.vercel
+.env*
 
-# Prisma
+# OxCode memory
+.oxcode-memory/
 apps/api/prisma/*.db
 
 # Docker volumes
