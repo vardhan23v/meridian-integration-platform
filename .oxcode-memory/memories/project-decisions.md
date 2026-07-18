@@ -3,7 +3,7 @@ title: Project decisions
 slug: project-decisions
 tags: 
 scope: project
-updated_at: 2026-07-18T18:01:46.824Z
+updated_at: 2026-07-18T22:24:15.810Z
 source: live
 hook: User-stated constraints, newest: if no such configured node exists, or if configured to false, all node
 ---
@@ -34,3 +34,21 @@ hook: User-stated constraints, newest: if no such configured node exists, or if 
 - Updated `packages/shared/src/index.ts` to re-export all types from `dashboard.ts`.
 - Executed `pnpm --filter @meridian/shared build` successfully, generating corresponding JS and DTS files in `packages/shared/dist/`.
 - Verified correct output files (`dashboard.d.ts`, `dashboard.js`) are present in the build directory.
+- Built `@meridian/shared` package successfully with CJS and ESM outputs
+- Fixed type mismatch in `@meridian/api` `DLQRepository.ts`: changed `offset: 0` to `offset: '0'` to align with shared package typing
+- Built `@meridian/api` and `@meridian/web` packages with zero TypeScript diagnostics
+- Verified monorepo has zero TypeScript problems across all packages
+- Confirmed successful compilation of Next.js app with no errors
+- All steps executed per task instructions with no failures
+- Project is connected to GitHub repository: `https://github.com/vardhan23v/meridian-integration-platform.git`
+- CI/CD pipeline exists at `.github/workflows/ci.yml` and triggers on `main` branch
+- Frontend uses Vercel for hosting with project name `pro2`
+- Backend API requires deployment; no current deployment configuration found
+- Docker infrastructure defined via `docker-compose.yml` and Dockerfiles
+- Multiple uncommitted changes present in working directory
+- Recommended backend deployment platform is Railway for monorepo support
+- PostgreSQL, Redis, and Kafka services recommended to be managed via Neon, Upstash, and Redpanda Cloud respectively
+- Vercel environment variable `NEXT_PUBLIC_API_URL` must be set post-backend deployment
+- GitHub secrets required include `RAILWAY_TOKEN`, `VERCEL_DEPLOY_HOOK`, `DATABASE_URL`, `REDIS_URL`, `KAFKA_BROKERS`, and `JWT_SECRET`
+- Deployment checklist includes committing changes, fixing CI branch mismatch, setting up managed services, deploying backend, updating Vercel, adding GitHub secrets, testing, and optional custom domain setup
+- Execution order prioritizes immediate commit/push, followed by managed service setup, backend deployment, Vercel updates, and then full CI/CD automation setup

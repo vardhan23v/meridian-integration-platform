@@ -1,7 +1,7 @@
 ## Memories
 
 - [Repository audit confirms no committed build artifacts ](memories/repository-audit-confirms-no-committed-build-artifacts.md): Repository audit confirms no committed build artifacts exist.
-- [Update 2026-07-18](memories/update-2026-07-18.md): Dashboard page uses `lg:grid-cols-2` for bottom analytics panels
+- [Update 2026-07-18](memories/update-2026-07-18.md): Created `IntegrationJobsTable.tsx` and `DLQTable.tsx` frontend table components
 - [Project decisions](memories/project-decisions.md): User-stated constraints, newest: if no such configured node exists, or if configured to false, all node
 - [Created `/apps/api/src/routes/dashboard.ts` with three ](memories/created-apps-api-src-routes-dashboard-ts-with-three.md): Created `/apps/api/src/routes/dashboard.ts` with three API route handlers:
 - [Created `apps/web/src/app/(dashboard)/dashboard/page.ts](memories/created-apps-web-src-app-dashboard-dashboard-page-ts.md): Created `apps/web/src/app/(dashboard)/dashboard/page.tsx` implementing `DashboardPage` wit

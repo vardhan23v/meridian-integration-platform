@@ -15,7 +15,7 @@ function toDomain(entry: {
     id: entry.id,
     topic: 'finsight.ready',
     partition: 0,
-    offset: 0,
+    offset: '0',
     payload: JSON.stringify(entry.payload),
     error: `${entry.errorCode}: ${entry.errorReason}`,
     timestamp: entry.createdAt.toISOString(),

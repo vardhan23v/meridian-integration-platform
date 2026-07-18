@@ -1,5 +1,6 @@
 {
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
-  "buildCommand": "cd ../.. && pnpm run build --filter=@meridian/web",
-  "framework": "nextjs"
+  "buildCommand": "cd ../.. && pnpm --filter @meridian/shared build && pnpm --filter @meridian/web build",
+  "framework": "nextjs",
+  "outputDirectory": "apps/web/.next"
 }

@@ -35,3 +35,5 @@ apps/api/prisma/*.db
 
 # Docker volumes
 docker/data/
+.vercel
+.env*
