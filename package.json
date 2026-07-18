@@ -5,6 +5,7 @@
   "description": "Enterprise SAP S/4HANA ↔ FinSight Financial Analytics Integration Platform",
   "author": "Meridian Manufacturing Ltd.",
   "license": "MIT",
+  "packageManager": "pnpm@11.13.0",
   "engines": {
     "node": ">=22.0.0",
     "pnpm": ">=9.0.0"
