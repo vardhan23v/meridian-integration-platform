@@ -1,0 +1,448 @@
+\documentclass[12pt,a4paper]{article}
+
+% ── Packages ──
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{float}
+
+% ── Colors ──
+\definecolor{meridian}{HTML}{6366F1}
+\definecolor{codebg}{HTML}{1E1B4B}
+\definecolor{lightgray}{HTML}{F3F4F6}
+\definecolor{darktext}{HTML}{1A1A2E}
+
+% ── Hyperlinks ──
+\hypersetup{
+  colorlinks=true,
+  linkcolor=meridian,
+  urlcolor=meridian,
+  citecolor=meridian,
+}
+
+% ── Header/Footer ──
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{meridian}{\textbf{Meridian Integration Platform}}}
+\fancyhead[R]{\textcolor{gray}{Technical Report}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Code Listings ──
+\lstdefinestyle{code}{
+  backgroundcolor=\color{lightgray},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{meridian!30},
+  tabsize=2,
+  showstringspaces=false,
+}
+
+% ── Title Formatting ──
+\titleformat{\section}{\Large\bfseries\color{meridian}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{darktext}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{darktext}}{\thesubsubsection}{1em}{}
+
+% ── Document ──
+\begin{document}
+
+% ══════════════════════════════════════════════════════════
+%  TITLE PAGE
+% ══════════════════════════════════════════════════════════
+\begin{titlepage}
+\centering
+\vspace*{3cm}
+
+{\Huge\bfseries\textcolor{meridian}{Meridian Integration Platform}}\\[0.8cm]
+{\Large\textcolor{gray}{Enterprise SAP S/4HANA $\leftrightarrow$ FinSight Analytics}}\\[2cm]
+
+{\large\bfseries Technical Project Report}\\[0.5cm]
+{\large Version 1.0}\\[2cm]
+
+\begin{tabular}{rl}
+\textbf{Project:} & Meridian Integration Platform \\
+\textbf{Author:}  & Vardhan \\
+\textbf{Date:}    & July 19, 2026 \\
+\textbf{Stack:}   & Next.js 16, TypeScript, Tailwind CSS, Recharts \\
+\textbf{Deployment:} & Vercel (Production) \\
+\textbf{Repository:} & \texttt{vardhan23v/meridian-integration-platform} \\
+\end{tabular}
+
+\vfill
+{\small\textcolor{gray}{Confidential --- Meridian Manufacturing Ltd.}}
+\end{titlepage}
+
+% ══════════════════════════════════════════════════════════
+%  TABLE OF CONTENTS
+% ══════════════════════════════════════════════════════════
+\tableofcontents
+\newpage
+
+% ══════════════════════════════════════════════════════════
+%  1. EXECUTIVE SUMMARY
+% ══════════════════════════════════════════════════════════
+\section{Executive Summary}
+
+The \textbf{Meridian Integration Platform} is an enterprise-grade web application that provides a unified monitoring and management dashboard for SAP S/4HANA $\leftrightarrow$ FinSight Financial Analytics integrations. Built with a modern monorepo architecture, the platform delivers:
+
+\begin{itemize}[leftmargin=2em]
+  \item Real-time pipeline throughput and service latency monitoring
+  \item Integration job orchestration with one-click triggering
+  \item Dead Letter Queue (DLQ) management with retry and resolution workflows
+  \item Role-based authentication and session management
+  \item A premium glassmorphic UI with liquid-glass design tokens
+\end{itemize}
+
+The platform is deployed on \textbf{Vercel} and accessible at:\\
+\url{https://web-beta-six-n0a0d29mql.vercel.app}
+
+% ══════════════════════════════════════════════════════════
+%  2. ARCHITECTURE OVERVIEW
+% ══════════════════════════════════════════════════════════
+\section{Architecture Overview}
+
+\subsection{Monorepo Structure}
+
+The project follows a \textbf{pnpm workspace monorepo} pattern:
+
+\begin{lstlisting}[style=code]
+meridian-integration-platform/
+  apps/
+    web/          # Next.js 16 frontend (Turbopack)
+    api/          # NestJS backend API
+  packages/
+    shared/       # Shared TypeScript interfaces & utilities
+  package.json    # Root workspace config
+  pnpm-workspace.yaml
+\end{lstlisting}
+
+\subsection{Technology Stack}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Layer} & \textbf{Technology} \\
+\midrule
+Frontend Framework & Next.js 16.2.10 (App Router, Turbopack) \\
+Language           & TypeScript 5.x (strict mode) \\
+Styling            & Tailwind CSS 4.x + custom Liquid-Glass design tokens \\
+Charts             & Recharts (AreaChart, BarChart, LineChart sparklines) \\
+State Management   & Zustand (persisted auth store) \\
+Data Fetching      & TanStack React Query v5 \\
+HTTP Client        & Axios with JWT interceptors \\
+Form Handling      & React Hook Form + Zod validation \\
+Package Manager    & pnpm 11.13.0 (workspaces) \\
+Deployment         & Vercel (edge-optimized, serverless functions) \\
+\bottomrule
+\end{tabularx}
+\caption{Technology stack overview}
+\end{table}
+
+\subsection{Data Flow}
+
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{Client} renders pages via Next.js App Router (SSR/SSG where possible).
+  \item \textbf{React Query hooks} call the \texttt{apiClient} (Axios instance).
+  \item \texttt{apiClient} injects JWT Bearer token via request interceptor.
+  \item \textbf{Next.js API Routes} (\texttt{/api/v1/*}) serve mock data (serverless functions on Vercel).
+  \item Responses conform to the \texttt{ApiResponse<T>} envelope: \texttt{\{data: T\}}.
+  \item React Query caches responses with configurable \texttt{staleTime} and \texttt{refetchInterval}.
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════
+%  3. SHARED TYPE SYSTEM
+% ══════════════════════════════════════════════════════════
+\section{Shared Type System (\texttt{@meridian/shared})}
+
+The \texttt{packages/shared} package exports all domain interfaces consumed by both the frontend and backend.
+
+\subsection{Dashboard Types}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Interface} & \textbf{Purpose} \\
+\midrule
+\texttt{DashboardOverview} & Top-level aggregate: stats, pipelines, services, events \\
+\texttt{PipelineStatus}    & Pipeline ID, name, status (healthy/warning/error), throughput \\
+\texttt{ServiceHealth}     & Service name, status (up/down/degraded), latency, uptime \\
+\texttt{IntegrationEvent}  & Event ID, type, status (success/failed/pending), message \\
+\texttt{DashboardMetrics}  & Time-series arrays: pipelineThroughput, serviceLatency, eventVolume \\
+\texttt{MetricPoint}       & Single data point: \texttt{\{timestamp: string, value: number\}} \\
+\bottomrule
+\end{tabularx}
+\caption{Dashboard type interfaces}
+\end{table}
+
+\subsection{Integration Job Types}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Interface} & \textbf{Purpose} \\
+\midrule
+\texttt{IntegrationJob}     & Job ID, name, status, source, destination, scheduling \\
+\texttt{TriggerJobResponse} & Job trigger acknowledgement \\
+\bottomrule
+\end{tabularx}
+\caption{Integration job type interfaces}
+\end{table}
+
+\subsection{Dead Letter Queue Types}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Interface} & \textbf{Purpose} \\
+\midrule
+\texttt{DLQMessage}        & Message ID, topic, partition, offset, payload, error, retry count \\
+\texttt{DLQActionResponse} & Retry/resolve action acknowledgement \\
+\bottomrule
+\end{tabularx}
+\caption{DLQ type interfaces}
+\end{table}
+
+% ══════════════════════════════════════════════════════════
+%  4. FRONTEND PAGES & COMPONENTS
+% ══════════════════════════════════════════════════════════
+\section{Frontend Pages \& Components}
+
+\subsection{Routing Architecture}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Route} & \textbf{Group} & \textbf{Description} \\
+\midrule
+\texttt{/}                         & ---        & Redirects to \texttt{/login} \\
+\texttt{/login}                    & (auth)     & JWT authentication form \\
+\texttt{/dashboard}                & (dashboard)& Main overview with stat cards, charts, events \\
+\texttt{/dashboard/jobs}           & (dashboard)& Integration jobs table with trigger actions \\
+\texttt{/dashboard/dlq}            & (dashboard)& Dead letter queue with retry/resolve actions \\
+\texttt{/dashboard/reconciliation} & (dashboard)& Reconciliation engine (placeholder) \\
+\bottomrule
+\end{tabularx}
+\caption{Application routes}
+\end{table}
+
+\subsection{Component Hierarchy}
+
+\subsubsection{Dashboard Page (\texttt{/dashboard})}
+
+\begin{itemize}[leftmargin=2em]
+  \item \textbf{StatCard} (×4): Total Pipelines, Active Pipelines, Total Events, Failed Events. Each card has accent-colored icon, animated counter, and hover glow effect.
+  \item \textbf{PipelineStatusList} → \textbf{PipelineCard} (×3): Displays per-pipeline status badge, Recharts sparkline of throughput, and last-run timestamp.
+  \item \textbf{ServiceHealthGrid} (×3): Service cards with animated status dot, latency progress bar, and uptime indicator.
+  \item \textbf{MetricsChart} (×2): Pipeline Throughput (area chart) and Service Latency (bar chart) powered by Recharts with gradient fills.
+  \item \textbf{EventsFeed}: Scrollable event list with relative timestamps and animated slide-in for new entries.
+\end{itemize}
+
+\subsubsection{Integration Jobs Page (\texttt{/dashboard/jobs})}
+
+\begin{itemize}[leftmargin=2em]
+  \item \textbf{IntegrationJobsTable}: Full-width data table with columns for Job Name, Status, Source→Destination, Last Run, Next Run, and a Trigger action button.
+  \item Uses \texttt{useMutation} for one-click job triggering with optimistic UI updates.
+\end{itemize}
+
+\subsubsection{Dead Letter Queue Page (\texttt{/dashboard/dlq})}
+
+\begin{itemize}[leftmargin=2em]
+  \item \textbf{DLQTable}: Data table with Message ID, Topic, Status, Error, Payload preview, Timestamp, and Retry/Resolve action buttons.
+  \item Truncated payload previews with full-text tooltips.
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════
+%  5. API ROUTES
+% ══════════════════════════════════════════════════════════
+\section{API Routes (Mock Backend)}
+
+All API routes are implemented as \textbf{Next.js Route Handlers} under \texttt{src/app/api/v1/}:
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+\midrule
+POST & \texttt{/api/v1/auth/login}          & Validates credentials, returns JWT + user object \\
+GET  & \texttt{/api/v1/dashboard/overview}   & Returns stats, pipelines, services, events \\
+GET  & \texttt{/api/v1/dashboard/metrics}    & Returns time-series throughput, latency, volume \\
+GET  & \texttt{/api/v1/dashboard/events}     & Returns recent integration events \\
+GET  & \texttt{/api/v1/integrations}         & Returns integration job list \\
+POST & \texttt{/api/v1/integrations/trigger}  & Triggers a named job \\
+GET  & \texttt{/api/v1/dlq}                  & Returns DLQ message list \\
+POST & \texttt{/api/v1/dlq/[id]/retry}       & Retries a dead-letter message \\
+POST & \texttt{/api/v1/dlq/[id]/resolve}     & Resolves a dead-letter message \\
+\bottomrule
+\end{tabularx}
+\caption{API endpoint reference}
+\end{table}
+
+% ══════════════════════════════════════════════════════════
+%  6. UI/UX DESIGN SYSTEM
+% ══════════════════════════════════════════════════════════
+\section{UI/UX Design System}
+
+\subsection{Liquid-Glass Token System}
+
+The platform implements a comprehensive \textbf{Liquid-Glass} design system defined entirely in CSS custom properties:
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Token Category} & \textbf{Tokens} \\
+\midrule
+Glass Opacity    & \texttt{--glass-opacity-light/medium/strong/subtle} \\
+Glass Blur       & \texttt{--glass-blur-sm/md/lg/xl} (8px--40px) \\
+Border Luminance & \texttt{--glass-border-luminance(-strong/-subtle)} \\
+Glow Colors      & \texttt{--glow-accent/success/warning/danger/white} \\
+Surface BGs      & \texttt{--glass-bg/glass-bg-strong/glass-bg-subtle} \\
+Shadows          & \texttt{--glass-shadow/strong/elevated} \\
+\bottomrule
+\end{tabularx}
+\caption{CSS custom property tokens}
+\end{table}
+
+\subsection{Utility Classes}
+
+\begin{itemize}[leftmargin=2em]
+  \item \texttt{.glass} --- Standard glassmorphic panel with backdrop blur
+  \item \texttt{.glass-strong} --- Higher opacity, stronger blur
+  \item \texttt{.glass-subtle} --- Minimal glass effect
+  \item \texttt{.glass-surface} / \texttt{.glass-elevated} --- Legacy surface variants
+  \item \texttt{.glow} / \texttt{.glow-strong} --- Focus/hover glow rings
+  \item \texttt{.animate-fade-in-up} / \texttt{.animate-blob} / \texttt{.animate-float} --- Motion
+\end{itemize}
+
+\subsection{Dark Mode}
+
+Full dark mode support via \texttt{@media (prefers-color-scheme: dark)} with recalculated token values for:
+\begin{itemize}[leftmargin=2em]
+  \item Inverted surface backgrounds (deep navy \texttt{\#0a0a14})
+  \item Adjusted glass opacity for dark surfaces
+  \item Strengthened glow intensities for dark contexts
+  \item Screen blend mode on animated background orbs
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════
+%  7. AUTHENTICATION
+% ══════════════════════════════════════════════════════════
+\section{Authentication}
+
+\subsection{Login Flow}
+
+\begin{enumerate}[leftmargin=2em]
+  \item User visits \texttt{/} → redirected to \texttt{/login}.
+  \item Login form validates with \textbf{Zod} schema (email format, password $\geq$ 6 chars).
+  \item \texttt{POST /api/v1/auth/login} validates credentials server-side.
+  \item On success: JWT \texttt{accessToken} stored in \texttt{localStorage}; user object persisted in Zustand store.
+  \item Axios interceptor attaches \texttt{Bearer <token>} to all subsequent API requests.
+  \item On 401 response: interceptor clears token and redirects to \texttt{/login}.
+\end{enumerate}
+
+\subsection{Test Credentials}
+
+\begin{tcolorbox}[colback=meridian!5, colframe=meridian, title=Demo Login]
+\textbf{Email:} \texttt{admin@meridian.com}\\
+\textbf{Password:} \texttt{Meridian@2026}
+\end{tcolorbox}
+
+% ══════════════════════════════════════════════════════════
+%  8. DEPLOYMENT
+% ══════════════════════════════════════════════════════════
+\section{Deployment}
+
+\subsection{Vercel Configuration}
+
+\begin{itemize}[leftmargin=2em]
+  \item \textbf{Framework:} Automatically detected as Next.js
+  \item \textbf{Build Command:} \texttt{pnpm --filter @meridian/shared build \&\& pnpm --filter @meridian/web build}
+  \item \textbf{Output:} \texttt{/vercel/output} (static pages + serverless functions)
+  \item \textbf{Region:} Washington, D.C. (iad1)
+  \item \textbf{Node.js:} 25.9.0
+\end{itemize}
+
+\subsection{Production URLs}
+
+\begin{itemize}[leftmargin=2em]
+  \item \textbf{Primary:} \url{https://web-beta-six-n0a0d29mql.vercel.app}
+  \item \textbf{Deployment:} \url{https://web-mxkg1fnq5-vardhan23vs-projects.vercel.app}
+\end{itemize}
+
+\subsection{Build Output}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Route} & \textbf{Type} & \textbf{Notes} \\
+\midrule
+\texttt{/}              & Static (○) & Redirect to \texttt{/login} \\
+\texttt{/login}         & Static (○) & Prerendered \\
+\texttt{/dashboard}     & Static (○) & Client-side data fetching \\
+\texttt{/dashboard/dlq} & Static (○) & Client-side data fetching \\
+\texttt{/dashboard/jobs} & Static (○) & Client-side data fetching \\
+\texttt{/api/v1/*}      & Dynamic (ƒ) & Serverless functions \\
+\bottomrule
+\end{tabularx}
+\caption{Build output routes}
+\end{table}
+
+% ══════════════════════════════════════════════════════════
+%  9. KNOWN ISSUES & FUTURE WORK
+% ══════════════════════════════════════════════════════════
+\section{Known Issues \& Future Work}
+
+\subsection{Current Limitations}
+
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{Mock data only}: All API routes return static mock data; no real SAP/FinSight integration yet.
+  \item \textbf{Reconciliation page}: Currently a placeholder; variance reports not yet implemented.
+  \item \textbf{Executive Overview}: Links to \texttt{/dashboard} (same page); needs dedicated analytics view.
+  \item \textbf{JWT stored in localStorage}: Production should use HttpOnly cookies.
+  \item \textbf{No middleware auth guard}: Client-side routing handles protection; Edge middleware is a pass-through.
+\end{enumerate}
+
+\subsection{Planned Enhancements}
+
+\begin{itemize}[leftmargin=2em]
+  \item Connect real NestJS backend (\texttt{apps/api}) with PostgreSQL database
+  \item Implement WebSocket-based real-time event streaming
+  \item Add reconciliation variance reports with drill-down analysis
+  \item Role-based access control (RBAC) using the \texttt{UserRole} enum
+  \item End-to-end tests with Playwright
+  \item CI/CD pipeline with GitHub Actions
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════
+%  10. CONCLUSION
+% ══════════════════════════════════════════════════════════
+\section{Conclusion}
+
+The Meridian Integration Platform demonstrates a production-ready enterprise dashboard with a modern React stack, comprehensive type safety through shared interfaces, and a premium glassmorphic UI design system. The monorepo architecture enables clean separation between the frontend, backend, and shared code while maintaining a unified deployment pipeline through Vercel.
+
+\vspace{1cm}
+\noindent\rule{\textwidth}{0.4pt}
+\begin{center}
+\textcolor{gray}{\small Generated on July 19, 2026 --- Meridian Integration Platform v1.0}
+\end{center}
+
+\end{document}
