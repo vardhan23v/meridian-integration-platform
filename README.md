@@ -1,9 +1,19 @@
-# Meridian Integration Platform 🚀
+<div align="center">
 
-[![CI Pipeline](https://github.com/meridian-mfg/integration-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/meridian-mfg/integration-platform/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+# 🚀 Meridian Integration Platform
 
-Enterprise integration middleware connecting **SAP S/4HANA** (via ODP Delta Extractions) to **FinSight Financial Analytics**. Provides a real-time dashboard for monitoring integration pipelines, managing dead-letter queues, and running financial reconciliations.
+**Enterprise integration middleware connecting SAP S/4HANA to FinSight Financial Analytics.**  
+Provides a real-time dashboard for monitoring integration pipelines, managing dead-letter queues, and running financial reconciliations.
+
+[![Node.js](https://img.shields.io/badge/Node.js-22.x-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.x-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-6.x-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![CI Pipeline](https://img.shields.io/github/actions/workflow/status/meridian-mfg/integration-platform/ci.yml?style=for-the-badge)](https://github.com/meridian-mfg/integration-platform/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+</div>
 
 ---
 
